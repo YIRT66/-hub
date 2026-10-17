@@ -2303,6 +2303,7 @@ App.Window=Window
 
 -- Tabs are always constructed inside ANUI sections, but can be presented flat.
 -- Reparent existing tab buttons rather than rebuilding pages or duplicate callbacks.
+App.NavOrder={"Home","Movement","Defense","PlayerUI","Travel","ESP","Aim","Combat","World","Performance","Utilities","Hotkeys","Settings","Customize","Music"}
 App.NavMap={Home="Role",Movement="Role",Defense="Role",PlayerUI="Role",Travel="Role",
  ESP="Combat",Aim="Combat",Combat="Combat",World="Tools",Performance="Tools",
  Utilities="Tools",Hotkeys="Tools",Settings="Personal",Customize="Personal",Music="Personal"}
@@ -2310,6 +2311,14 @@ App.NavLabels={Role="🌧️ 概览与角色",Combat="🎯 战斗与物理",Tool
 App.NavFrames={}
 App.RefreshSidebarLayout=function()
  local sidebar=Window.UIElements.SideBar.Frame
+ local layout=sidebar:FindFirstChildOfClass("UIListLayout")
+ if layout then layout.SortOrder=Enum.SortOrder.LayoutOrder end
+ for index,key in ipairs(App.NavOrder)do
+  local tab=App.Tabs[key]
+  if tab and tab.UIElements and tab.UIElements.Main then
+   tab.UIElements.Main.LayoutOrder=index*10
+  end
+ end
  for _,frame in ipairs(sidebar:GetChildren())do
   if frame:IsA("Frame") and frame:FindFirstChild("Content")then
    local header=frame:FindFirstChildOfClass("TextButton")
@@ -2329,8 +2338,15 @@ App.RefreshSidebarLayout=function()
    if target and button.Parent~=target then button.Parent=target end
   end
  end
- for _,frame in pairs(App.NavFrames)do
-  frame.Visible=State.sidebarGrouped
+ for index,key in ipairs({"Role","Combat","Tools","Personal"})do
+  local frame=App.NavFrames[key]
+  if frame then
+   frame.LayoutOrder=index*100
+   local content=frame:FindFirstChild("Content")
+   local order=content and content:FindFirstChildOfClass("UIListLayout")
+   if order then order.SortOrder=Enum.SortOrder.LayoutOrder end
+   frame.Visible=State.sidebarGrouped
+  end
  end
 end
 
