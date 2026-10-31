@@ -1575,6 +1575,9 @@ local function stopIsolation(restore, reason)
 end
 local function startIsolation(candidate)
     if Isolation.active then return false, "已有感染任务在运行" end
+    if Config.halfInfectionLock then
+        return false, "请先关闭本地半感染锁定实验，避免虚假觉醒结果"
+    end
     local char = LocalPlayer.Character
     local root = getRoot(char)
     local humanoid = getHumanoid(char)
